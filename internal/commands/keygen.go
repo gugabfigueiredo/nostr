@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"github.com/gugabfigueiredo/nostr-cli/internal/io"
 	"github.com/nbd-wtf/go-nostr/nip06"
 	"github.com/spf13/cobra"
 	"os"
@@ -69,7 +68,7 @@ func keygen(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	err = io.WriteNostrFile(seedFilename, []byte(seedPhrase), passPhrase)
+	err = writeNostrFile(seedFilename, []byte(seedPhrase), passPhrase)
 	if err != nil {
 		cmd.Printf("failed to write seed phrase file: %v", err)
 		os.Exit(1)
