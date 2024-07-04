@@ -2,14 +2,12 @@
 Copyright © 2024 Guga Figueiredo gugafigueiredo@primal.net
 */
 
-package nostr
+package commands
 
 import (
 	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/gugabfigueiredo/nostr-cli/internal/commands"
 )
 
 var rootCmd = &cobra.Command{
@@ -28,5 +26,7 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.AddCommand(commands.Keygen)
+	rootCmd.PersistentFlags().BoolP("help", "h", false, "help for nostr")
+
+	rootCmd.AddCommand(Keygen)
 }
