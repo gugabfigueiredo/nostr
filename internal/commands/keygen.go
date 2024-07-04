@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	sourceSeedPhrase   string
-	sourceSeedFilename string
+	seedPhrase string
+	seedSource string
 )
 
 var Keygen = &cobra.Command{
@@ -21,18 +21,15 @@ var Keygen = &cobra.Command{
 }
 
 func init() {
-	Keygen.Flags().StringVarP(&sourceSeedPhrase, "seed", "s", "", "user provided seed phrase")
-	Keygen.Flags().StringVarP(&sourceSeedFilename, "seed-filename", "f", "", "user provided seed phrase source filename")
+	Keygen.Flags().StringVarP(&seedPhrase, "seed", "s", "", "user provided seed phrase")
+	Keygen.Flags().StringVarP(&seedSource, "seed-source", "f", "", "user provided seed phrase source filename")
 }
 
 func keygen(cmd *cobra.Command, args []string) {
 	cmd.Println("Generating new nostr id...")
 
-	var seedPhrase string
-	if sourceSeedPhrase != "" {
-		seedPhrase = sourceSeedPhrase
-	} else if sourceSeedFilename != "" {
-		seedPhraseBytes, err := os.ReadFile(sourceSeedFilename)
+	if seedPhrase == "" && seedSource != "" {
+		seedPhraseBytes, err := os.ReadFile(seedSource)
 		if err != nil {
 			cmd.Printf("failed to read seed phrase file: %v", err)
 			os.Exit(1)
