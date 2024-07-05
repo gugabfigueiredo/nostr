@@ -6,17 +6,56 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/json"
+	"fmt"
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/pbkdf2"
+	"golang.org/x/term"
 	"os"
 	"strings"
 )
 
+// promptString prompts the user for a string value
 func promptString(cmd *cobra.Command, prompt string) string {
 	cmd.Print(prompt)
 	reader := bufio.NewReader(cmd.InOrStdin())
 	text, _ := reader.ReadString('\n')
 	return strings.TrimSuffix(text, "\n")
+}
+
+// promptSecret prompts the user for a secret value without echoing it to the terminal
+func promptSecret(cmd *cobra.Command, prompt string) string {
+	cmd.Print(prompt)
+	secret, err := term.ReadPassword(int(os.Stdin.Fd()))
+	if err != nil {
+		cmd.Println(err)
+		os.Exit(1)
+	}
+	cmd.Println()
+	return string(secret)
+}
+
+// promptBool prompts the user for 'y' or 'n': <prompt> [y/n]:
+// if left empty the default value is returned
+func promptBool(cmd *cobra.Command, prompt string, def bool) bool {
+	if def {
+		prompt = fmt.Sprintf("%s [Y/n]: ", prompt)
+	} else {
+		prompt = fmt.Sprintf("%s [y/N]: ", prompt)
+	}
+	for {
+		input := promptString(cmd, prompt)
+		switch input {
+		case "y", "Y":
+			return true
+		case "n", "N":
+			return false
+		case "":
+			return def
+		default:
+			cmd.Println("Please enter 'y' or 'n'")
+		}
+	}
 }
 
 func writeNostrFile(filename string, data []byte, passphrase string) error {
@@ -55,8 +94,8 @@ func writeNostrFile(filename string, data []byte, passphrase string) error {
 	return os.WriteFile(filename, encrypted, 0644)
 }
 
-func readNostrFile(inputFile string, passphrase string) ([]byte, error) {
-	raw, err := os.ReadFile(inputFile)
+func readNostrFile(filename string, passphrase string) ([]byte, error) {
+	raw, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
@@ -87,4 +126,13 @@ func readNostrFile(inputFile string, passphrase string) ([]byte, error) {
 	}
 
 	return decrypted, nil
+}
+
+func readNostrEntity(filename string, passphrase string, entity any) error {
+	raw, err := readNostrFile(filename, passphrase)
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(raw, entity)
 }
