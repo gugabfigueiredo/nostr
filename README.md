@@ -1,4 +1,4 @@
-# nostr-cli
+# nostr
 a cli suite to manage local nostr settings
 
 ## nostr key-gen

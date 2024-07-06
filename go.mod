@@ -1,4 +1,4 @@
-module github.com/gugabfigueiredo/nostr-cli
+module github.com/gugabfigueiredo/nostr
 
 go 1.22.1
 
